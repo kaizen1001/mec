@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>MEC - Sự Kiện</title>
+    <title>MEC - Công Việc</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body { background: linear-gradient(135deg, #f3e5f5, #fce4ec); min-height: 100vh; font-family: sans-serif; }</style>
 </head>
@@ -11,103 +11,117 @@
         <div class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC Hub</div>
         <div class="flex gap-8 font-semibold text-purple-900/70">
             <a href="dashboard.html" class="hover:text-[#b5179e] transition-colors pb-1">📊 Tổng quan</a>
-            <a href="events.html" class="text-[#b5179e] border-b-2 border-[#b5179e] pb-1">📅 Sự kiện</a>
-            <a href="tasks.html" class="hover:text-[#b5179e] transition-colors pb-1">✅ Công việc</a>
+            <a href="events.html" class="hover:text-[#b5179e] transition-colors pb-1">📅 Sự kiện</a>
+            <a href="tasks.html" class="text-[#b5179e] border-b-2 border-[#b5179e] pb-1">✅ Công việc</a>
+            <a href="calendar.html" class="hover:text-[#b5179e] transition-colors pb-1">📆 Lịch Treo Tường</a>
         </div>
         <button onclick="localStorage.clear(); window.location.href='index.html'" class="text-sm bg-pink-100 text-[#f72585] px-4 py-2 rounded-lg font-bold">Đăng xuất</button>
     </nav>
 
     <div class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
-        
-        <!-- Cột 1: Form Tạo sự kiện -->
-        <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-[#7209b7] h-fit">
-            <h3 class="font-extrabold text-xl text-gray-800 mb-6">➕ Tạo Sự Kiện Mới</h3>
-            <form id="createEventForm" class="space-y-4">
+        <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-[#f72585] h-fit">
+            <h3 class="font-extrabold text-xl text-gray-800 mb-6">🎯 Giao Việc Mới</h3>
+            <form id="createTaskForm" class="space-y-4">
                 <div>
-                    <label class="text-xs font-bold text-gray-500">TÊN SỰ KIỆN</label>
-                    <input type="text" id="evTitle" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none mt-1" required>
+                    <label class="text-xs font-bold text-gray-500">MÔ TẢ CÔNG VIỆC</label>
+                    <input type="text" id="taskTitle" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" required>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500">NGÀY TỔ CHỨC</label>
-                    <input type="date" id="evDate" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none mt-1" required>
+                    <label class="text-xs font-bold text-gray-500">NGƯỜI PHỤ TRÁCH</label>
+                    <select id="taskAssignee" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" required>
+                        <option value="">Đang tải danh sách...</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="text-xs font-bold text-gray-500">ĐỊA ĐIỂM</label>
-                    <input type="text" id="evLocation" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none mt-1" required>
+                    <label class="text-xs font-bold text-gray-500">HẠN CHÓT</label>
+                    <input type="datetime-local" id="taskDeadline" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" required>
                 </div>
-                <button type="submit" id="btnSubmitEv" class="w-full bg-gradient-to-r from-[#7209b7] to-[#f72585] text-white font-bold py-3 rounded-xl hover:shadow-lg mt-4 transition">
-                    Đăng Sự Kiện Lên Web
+                <button type="submit" id="btnSubmitTask" class="w-full bg-gradient-to-r from-[#f72585] to-[#7209b7] text-white font-bold py-3 rounded-xl hover:shadow-lg mt-4 transition">
+                    Giao Việc
                 </button>
             </form>
         </div>
 
-        <!-- Cột 2: Danh sách sự kiện -->
-        <div class="col-span-2 space-y-4" id="eventList">
-            <div class="text-center py-10 font-bold text-[#b5179e]">Đang tải danh sách sự kiện từ hệ thống...</div>
+        <div class="col-span-2 space-y-4">
+            <h2 class="text-2xl font-black text-gray-800 mb-4">Danh Sách Nhiệm Vụ</h2>
+            <div id="taskList" class="space-y-4">
+                <div class="text-center py-10 font-bold text-[#b5179e]">Đang tải dữ liệu...</div>
+            </div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
-        
-        // Logic 1: Tạo sự kiện mới
-        document.getElementById('createEventForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmitEv');
-            btn.innerText = "Đang lưu..."; btn.disabled = true;
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
+        if(!localStorage.getItem('user')) window.location.href = "index.html";
 
-            const user = JSON.parse(localStorage.getItem('user'));
-            const payload = {
-                action: 'createEvent',
-                title: document.getElementById('evTitle').value,
-                date: document.getElementById('evDate').value,
-                location: document.getElementById('evLocation').value,
-                maxCapacity: 100,
-                hostId: user ? user.id : 'UNKNOWN'
-            };
+        async function callAPI(payload) {
+            const NoCacheURL = BASE_API_URL + "?nocache=" + new Date().getTime(); 
+            const response = await fetch(NoCacheURL, {
+                method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            return await response.json();
+        }
 
+        async function loadTasksData() {
             try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }});
-                alert("Đã tạo sự kiện thành công! Dữ liệu đã được lưu vào Google Sheets.");
-                location.reload(); // Tải lại trang để thấy sự kiện mới
-            } catch (err) { alert("Lỗi kết nối!"); btn.innerText = "Đăng Sự Kiện"; btn.disabled = false;}
-        });
+                const result = await callAPI({ action: 'getTasksData' });
+                const select = document.getElementById('taskAssignee');
+                select.innerHTML = '<option value="">-- Chọn thành viên --</option>';
+                if(result.users) result.users.forEach(u => select.innerHTML += `<option value="${u.id}">${u.name}</option>`);
 
-        // Logic 2: Hiển thị danh sách sự kiện
-        async function loadEvents() {
-            try {
-                // Thêm timestamp để chống cache trình duyệt
-                const res = await fetch(API_URL + "?t=" + new Date().getTime(), { 
-                    method: 'POST', body: JSON.stringify({ action: 'getEvents' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-                const result = await res.json();
-                const list = document.getElementById('eventList');
+                const list = document.getElementById('taskList');
                 list.innerHTML = '';
-                
-                if (result.data.length === 0) {
-                    list.innerHTML = '<div class="text-center py-10 font-bold text-gray-500">Chưa có sự kiện nào.</div>';
+                if (!result.tasks || result.tasks.length === 0) {
+                    list.innerHTML = '<div class="text-center py-10 font-bold text-gray-500">Chưa có công việc nào.</div>';
                     return;
                 }
 
-                result.data.forEach(ev => {
-                    let dateObj = new Date(ev.date);
-                    let dateStr = dateObj.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                result.tasks.forEach(t => {
+                    let deadlineStr = new Date(t.deadline).toLocaleString('vi-VN');
+                    let statusHtml = ''; let borderCol = '';
+                    if(t.status === 'PENDING') { borderCol = 'border-yellow-400'; statusHtml = `<button class="bg-yellow-100 text-yellow-700 font-bold px-4 py-2 rounded-xl text-sm">Đang Chờ</button>`; } 
+                    else if(t.status === 'EARLY') { borderCol = 'border-green-400'; statusHtml = `<span class="text-green-600 font-extrabold bg-green-100 px-3 py-1 rounded-full text-sm">Xong Sớm</span>`; } 
+                    else if(t.status === 'LATE') { borderCol = 'border-red-500'; statusHtml = `<span class="text-red-600 font-extrabold bg-red-100 px-3 py-1 rounded-full text-sm">Trễ Deadline</span>`; } 
+                    else { borderCol = 'border-blue-400'; statusHtml = `<span class="text-blue-600 font-extrabold bg-blue-100 px-3 py-1 rounded-full text-sm">Đúng Hạn</span>`; }
+
+                    let assignedUser = result.users ? result.users.find(u => u.id === t.assignee) : null;
+                    let assigneeName = assignedUser ? assignedUser.name : 'Không rõ';
+
                     list.innerHTML += `
-                        <div class="bg-white p-6 rounded-3xl shadow-sm border-l-8 border-[#f72585] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:shadow-md">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 ${borderCol} flex justify-between items-center hover:shadow-md transition">
                             <div>
-                                <h4 class="text-2xl font-black text-gray-800">${ev.title}</h4>
-                                <p class="text-gray-500 font-medium mt-2 flex items-center gap-2">
-                                    <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-bold">📍 ${ev.location}</span>
-                                    <span class="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold">📅 ${dateStr}</span>
-                                </p>
+                                <h4 class="text-xl font-bold text-gray-800">${t.title}</h4>
+                                <p class="text-gray-500 text-sm mt-2">👤 Giao cho: <span class="text-[#b5179e] font-bold">${assigneeName}</span></p>
+                                <p class="text-gray-500 text-sm mt-1">⏰ Deadline: <span class="font-bold">${deadlineStr}</span></p>
                             </div>
-                            <button class="bg-gray-100 text-gray-800 font-bold px-6 py-3 rounded-xl hover:bg-[#7209b7] hover:text-white transition">RSVP Tham gia</button>
-                        </div>
-                    `;
+                            ${statusHtml}
+                        </div>`;
                 });
-            } catch(e) { document.getElementById('eventList').innerHTML = '<div class="text-center text-red-500">Lỗi tải dữ liệu.</div>'; }
+            } catch(e) { document.getElementById('taskList').innerHTML = '<div class="text-center text-red-500">Lỗi lấy dữ liệu Task. (Lưu ý: Bạn phải thêm hàm getTasksData vào Apps Script)</div>'; }
         }
-        loadEvents();
+
+        document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitTask');
+            btn.innerText = "Đang lưu..."; btn.disabled = true;
+
+            const payload = {
+                action: 'createTask',
+                title: document.getElementById('taskTitle').value,
+                assigneeId: document.getElementById('taskAssignee').value,
+                deadline: document.getElementById('taskDeadline').value
+            };
+
+            try {
+                await callAPI(payload);
+                alert("Giao việc thành công!");
+                loadTasksData();
+                document.getElementById('createTaskForm').reset();
+            } catch (err) { alert("Lỗi kết nối!"); }
+            finally { btn.innerText = "Giao Việc"; btn.disabled = false;}
+        });
+
+        window.onload = loadTasksData;
     </script>
 </body>
 </html>
