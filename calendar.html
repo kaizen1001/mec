@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>MEC - Lịch Sự Kiện</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <style>
+        body { background: linear-gradient(135deg, #f3e5f5, #fce4ec); min-height: 100vh; }
+        .fc-event { border: none !important; color: white !important; font-weight: bold; border-radius: 6px; padding: 2px 4px; }
+        .fc-toolbar-title { color: #7209b7 !important; font-weight: 800 !important; }
+        .fc-button-primary { background-color: #b5179e !important; border: none !important; }
+    </style>
+</head>
+<body>
+    
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC Hub</div>
+        <div class="flex gap-8 font-semibold text-purple-900/70">
+            <a href="dashboard.html" class="hover:text-[#b5179e] transition-colors pb-1">📊 Tổng quan</a>
+            <a href="calendar.html" class="text-[#b5179e] border-b-2 border-[#b5179e] pb-1">📅 Sự kiện</a>
+            <a href="tasks.html" class="hover:text-[#b5179e] transition-colors pb-1">✅ Công việc</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="localStorage.clear(); window.location.href = 'index.html';" class="text-sm bg-pink-100 text-[#f72585] px-4 py-2 rounded-lg font-bold">Đăng xuất</button>
+        </div>
+    </nav>
+
+    <div class="p-6 max-w-7xl mx-auto mt-4">
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-purple-50">
+            <div id='calendar'></div>
+        </div>
+    </div>
+
+    <script>
+        if(!localStorage.getItem('user')) window.location.href = "index.html";
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: [
+                    { title: 'Training Content', start: '2026-10-28', backgroundColor: '#7209b7' },
+                    { title: 'Chạy sự kiện Halloween', start: '2026-10-31', backgroundColor: '#f72585' }
+                ],
+                eventClick: function(info) {
+                    alert('Bạn đã chọn sự kiện: ' + info.event.title + '\n(Đang chờ tích hợp API thêm sự kiện)');
+                }
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
