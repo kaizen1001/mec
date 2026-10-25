@@ -8,8 +8,6 @@
     <style>body { background: linear-gradient(135deg, #f3e5f5, #fce4ec); min-height: 100vh; font-family: sans-serif; }</style>
 </head>
 <body>
-    
-    <!-- Thanh Điều Hướng (Navbar) -->
     <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC Hub</div>
         <div class="flex gap-8 font-semibold text-purple-900/70">
@@ -24,28 +22,19 @@
     </nav>
 
     <div class="p-6 max-w-7xl mx-auto mt-4">
-        
-        <!-- BẢNG THỐNG KÊ TỔNG QUAN (ANALYTICS CARDS) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <!-- Card 1: Tổng thành viên -->
             <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-[#7209b7] hover:-translate-y-1 transition duration-300">
                 <p class="text-purple-500 font-bold text-xs tracking-wider uppercase">Tổng Thành Viên</p>
                 <h3 class="text-4xl font-black text-[#7209b7] mt-2" id="statMembers">0</h3>
             </div>
-            
-            <!-- Card 2: Tổng sự kiện -->
             <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-[#f72585] hover:-translate-y-1 transition duration-300">
                 <p class="text-pink-500 font-bold text-xs tracking-wider uppercase">Sự Kiện Đã Tổ Chức</p>
                 <h3 class="text-4xl font-black text-[#f72585] mt-2" id="statEvents">0</h3>
             </div>
-            
-            <!-- Card 3: Tỉ lệ hoàn thành task -->
             <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-green-500 hover:-translate-y-1 transition duration-300">
                 <p class="text-green-500 font-bold text-xs tracking-wider uppercase">Tỉ lệ hoàn thành Task</p>
                 <h3 class="text-4xl font-black text-green-500 mt-2" id="statRate">0%</h3>
             </div>
-            
-            <!-- Card 4: Chi tiết tiến độ Task -->
             <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-blue-500 hover:-translate-y-1 transition duration-300">
                 <p class="text-blue-500 font-bold text-xs tracking-wider uppercase mb-3">Đánh giá tiến độ</p>
                 <div class="flex justify-between items-center text-sm font-bold bg-gray-50 p-2 rounded-lg">
@@ -56,7 +45,6 @@
             </div>
         </div>
 
-        <!-- BẢNG XẾP HẠNG KPI THÀNH VIÊN -->
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-purple-50">
             <div class="bg-gradient-to-r from-[#7209b7] to-[#f72585] p-5 text-white flex justify-between items-center">
                 <h2 class="text-xl font-bold">🏆 Bảng Đánh Giá Năng Lực Thành Viên</h2>
@@ -73,7 +61,7 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboardBody">
-                        <tr><td colspan="4" class="text-center py-10 text-[#b5179e] font-bold">Đang đồng bộ dữ liệu từ Google Sheets...</td></tr>
+                        <tr><td colspan="4" class="text-center py-10 text-[#b5179e] font-bold">Đang đồng bộ dữ liệu...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -81,36 +69,31 @@
     </div>
 
     <script>
-        // Sử dụng API thực tế của bạn
-        const API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
-        
-        // Kiểm tra xem đã đăng nhập chưa
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
         if(!localStorage.getItem('user')) window.location.href = "index.html";
+
+        async function callAPI(payload) {
+            const NoCacheURL = BASE_API_URL + "?nocache=" + new Date().getTime(); 
+            const response = await fetch(NoCacheURL, {
+                method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            return await response.json();
+        }
 
         async function fetchDashboard() {
             document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="4" class="text-center py-10 font-bold text-gray-500">Đang tải dữ liệu...</td></tr>';
             try {
-                // Thêm "?t=..." để báo trình duyệt không lưu cache, luôn lấy dữ liệu mới nhất
-                const response = await fetch(API_URL + "?t=" + new Date().getTime(), { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'getDashboard' }),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-                const result = await response.json();
-                
+                const result = await callAPI({ action: 'getDashboard' });
                 if(result.success) {
-                    // Cập nhật 4 thẻ thống kê ở trên cùng
-                    document.getElementById('statMembers').innerText = result.stats.totalMembers;
-                    document.getElementById('statEvents').innerText = result.stats.totalEvents;
-                    document.getElementById('statRate').innerText = result.stats.completionRate + "%";
-                    document.getElementById('statEarly').innerText = result.stats.early;
-                    document.getElementById('statOnTime').innerText = result.stats.onTime;
-                    document.getElementById('statLate').innerText = result.stats.late;
+                    document.getElementById('statMembers').innerText = result.stats.totalMembers || 0;
+                    document.getElementById('statEvents').innerText = result.stats.totalEvents || 0;
+                    document.getElementById('statRate').innerText = (result.stats.completionRate || 0) + "%";
+                    document.getElementById('statEarly').innerText = result.stats.early || 0;
+                    document.getElementById('statOnTime').innerText = result.stats.onTime || 0;
+                    document.getElementById('statLate').innerText = result.stats.late || 0;
 
-                    // Cập nhật danh sách bảng xếp hạng Leaderboard
                     const tbody = document.getElementById('leaderboardBody');
                     tbody.innerHTML = '';
-                    
                     if(result.leaderboard.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Chưa có dữ liệu thành viên.</td></tr>';
                         return;
@@ -118,8 +101,7 @@
 
                     result.leaderboard.forEach((member, index) => {
                         let rankIcon = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `<span class="text-gray-400">#${index + 1}</span>`;
-                        let rowClass = index < 3 ? "bg-purple-50/30" : ""; // Highlight Top 3
-                        
+                        let rowClass = index < 3 ? "bg-purple-50/30" : ""; 
                         tbody.innerHTML += `
                             <tr class="border-b border-gray-100 hover:bg-purple-50 transition ${rowClass}">
                                 <td class="py-4 px-4 font-black text-2xl text-[#b5179e] w-20">${rankIcon}</td>
@@ -130,12 +112,8 @@
                         `;
                     });
                 }
-            } catch(e) { 
-                document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="4" class="text-center py-10 font-bold text-red-500">Lỗi kết nối Cơ sở dữ liệu! Vui lòng thử lại.</td></tr>';
-            }
+            } catch(e) { document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="4" class="text-center py-10 font-bold text-red-500">Lỗi kết nối CSDL!</td></tr>'; }
         }
-        
-        // Chạy hàm lấy dữ liệu ngay khi vừa load xong trang
         window.onload = fetchDashboard;
     </script>
 </body>
