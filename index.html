@@ -11,7 +11,6 @@
     </style>
 </head>
 <body class="flex items-center justify-center">
-    
     <div class="glass-panel p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-[#b5179e]">
         <div class="text-center mb-8">
             <h2 class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC HUB</h2>
@@ -37,10 +36,9 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
         let isLoginMode = true;
 
-        // Xử lý chuyển đổi nút Đăng nhập / Đăng ký
         document.getElementById('toggleMode').addEventListener('click', function() {
             isLoginMode = !isLoginMode;
             document.getElementById('registerFields').classList.toggle('hidden');
@@ -48,12 +46,18 @@
             this.innerText = isLoginMode ? "Đăng ký ngay" : "Quay lại Đăng nhập";
         });
 
-        // Xử lý gửi Form
+        async function callAPI(payload) {
+            const NoCacheURL = BASE_API_URL + "?nocache=" + new Date().getTime(); 
+            const response = await fetch(NoCacheURL, {
+                method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            return await response.json();
+        }
+
         document.getElementById('authForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            btn.innerText = "Đang xử lý...";
-            btn.disabled = true;
+            btn.innerText = "Đang xử lý..."; btn.disabled = true;
 
             const payload = {
                 action: isLoginMode ? 'login' : 'register',
@@ -64,19 +68,11 @@
             };
 
             try {
-                // Gọi API
-                const response = await fetch(API_URL, { 
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-                });
-                
-                const result = await response.json();
-                
+                const result = await callAPI(payload);
                 if (result.success) {
                     if (isLoginMode) {
                         localStorage.setItem('user', JSON.stringify(result.user));
-                        window.location.href = "dashboard.html"; // Vào trang chủ
+                        window.location.href = "dashboard.html";
                     } else {
                         alert("Đăng ký thành công! Vui lòng đăng nhập lại.");
                         location.reload();
@@ -84,7 +80,7 @@
                 } else {
                     alert("Lỗi: " + result.message);
                 }
-            } catch (err) { alert("Lỗi kết nối đến Server Google!"); }
+            } catch (err) { alert("Lỗi kết nối đến Server!"); }
             finally { btn.innerText = isLoginMode ? "Đăng nhập" : "Đăng ký tài khoản"; btn.disabled = false; }
         });
     </script>
