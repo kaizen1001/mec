@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>MEC - Lịch Tổng Hợp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <style>
+        body { background: linear-gradient(135deg, #f3e5f5, #fce4ec); min-height: 100vh; font-family: sans-serif; }
+        .fc-event { border: none !important; color: white !important; font-weight: bold; border-radius: 6px; padding: 4px; cursor: pointer; }
+        .fc-toolbar-title { color: #7209b7 !important; font-weight: 900 !important; font-size: 1.5rem !important; }
+        .fc-button-primary { background-color: #b5179e !important; border: none !important; text-transform: capitalize !important; font-weight: bold !important; }
+        .fc-col-header-cell-cushion { color: #7209b7 !important; padding: 10px 0 !important; }
+        .fc-daygrid-day-number { color: #f72585 !important; font-weight: bold !important; padding: 8px !important; }
+    </style>
+</head>
+<body>
+    
+    <!-- Navbar -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC Hub</div>
+        <div class="flex gap-8 font-semibold text-purple-900/70">
+            <a href="dashboard.html" class="hover:text-[#b5179e] transition-colors pb-1">📊 Tổng quan</a>
+            <a href="events.html" class="hover:text-[#b5179e] transition-colors pb-1">📅 Sự kiện</a>
+            <a href="tasks.html" class="hover:text-[#b5179e] transition-colors pb-1">✅ Công việc</a>
+            <a href="calendar.html" class="text-[#b5179e] border-b-2 border-[#b5179e] pb-1">📆 Lịch Treo Tường</a>
+        </div>
+        <button onclick="localStorage.clear(); window.location.href='index.html'" class="text-sm bg-pink-100 text-[#f72585] px-4 py-2 rounded-lg font-bold">Đăng xuất</button>
+    </nav>
+
+    <div class="p-6 max-w-7xl mx-auto mt-4">
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-purple-50">
+            <div id='calendar'></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
+        if(!localStorage.getItem('user')) window.location.href = "index.html";
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            var calendarEl = document.getElementById('calendar');
+            
+            // Gọi API lấy sự kiện từ Google Sheets
+            let calendarEvents = [];
+            try {
+                const res = await fetch(API_URL + "?t=" + new Date().getTime(), { 
+                    method: 'POST', body: JSON.stringify({ action: 'getEvents' }), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    // Chuyển đổi dữ liệu cho đúng chuẩn của thư viện FullCalendar
+                    calendarEvents = result.data.map(ev => ({
+                        title: ev.title,
+                        start: ev.date.split('T')[0], // Lấy YYYY-MM-DD
+                        backgroundColor: '#f72585', // Màu hường đặc trưng của MEC
+                        extendedProps: {
+                            location: ev.location
+                        }
+                    }));
+                }
+            } catch(e) { console.log("Lỗi lấy lịch", e); }
+
+            // Khởi tạo Lịch
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'vi', // Đổi lịch sang Tiếng Việt
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek'
+                },
+                buttonText: {
+                    today: 'Hôm nay',
+                    month: 'Tháng',
+                    week: 'Tuần'
+                },
+                events: calendarEvents, // Nạp dữ liệu từ mảng
+                eventClick: function(info) {
+                    alert('Sự kiện: ' + info.event.title + '\nĐịa điểm: ' + info.event.extendedProps.location);
+                }
+            });
+            calendar.render();
+        });
+    </script>
+</body>
+</html>

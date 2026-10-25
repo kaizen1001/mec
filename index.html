@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEC Hub - Đăng nhập</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: linear-gradient(135deg, #e0c3fc 0%, #f8e8fa 50%, #e0c3fc 100%); min-height: 100vh; font-family: sans-serif; }
+        .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="flex items-center justify-center">
+    
+    <div class="glass-panel p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-4 border-[#b5179e]">
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC HUB</h2>
+            <p class="text-xs font-bold text-purple-800 tracking-[0.2em] mt-1 uppercase">Media & Events Club</p>
+        </div>
+        
+        <form id="authForm" class="space-y-4">
+            <div id="registerFields" class="hidden space-y-4">
+                <input type="text" id="regName" placeholder="Họ và Tên (Vd: Nguyễn Văn A)" class="w-full px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none bg-purple-50/50">
+                <input type="text" id="regMSSV" placeholder="MSSV" class="w-full px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none bg-purple-50/50">
+            </div>
+            <input type="email" id="email" placeholder="Email của bạn" class="w-full px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none bg-purple-50/50" required>
+            <input type="password" id="password" placeholder="Mật khẩu" class="w-full px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none bg-purple-50/50" required>
+            
+            <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-[#7209b7] to-[#f72585] text-white font-bold py-3 rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all duration-300">
+                Đăng nhập
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-purple-900 text-sm font-medium">
+            Chưa có tài khoản? <span id="toggleMode" class="text-[#f72585] font-bold cursor-pointer hover:underline">Đăng ký ngay</span>
+        </p>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
+        let isLoginMode = true;
+
+        // Xử lý chuyển đổi nút Đăng nhập / Đăng ký
+        document.getElementById('toggleMode').addEventListener('click', function() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('registerFields').classList.toggle('hidden');
+            document.getElementById('submitBtn').innerText = isLoginMode ? "Đăng nhập" : "Đăng ký tài khoản";
+            this.innerText = isLoginMode ? "Đăng ký ngay" : "Quay lại Đăng nhập";
+        });
+
+        // Xử lý gửi Form
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "Đang xử lý...";
+            btn.disabled = true;
+
+            const payload = {
+                action: isLoginMode ? 'login' : 'register',
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                fullName: document.getElementById('regName').value,
+                studentId: document.getElementById('regMSSV').value,
+            };
+
+            try {
+                // Gọi API
+                const response = await fetch(API_URL, { 
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (isLoginMode) {
+                        localStorage.setItem('user', JSON.stringify(result.user));
+                        window.location.href = "dashboard.html"; // Vào trang chủ
+                    } else {
+                        alert("Đăng ký thành công! Vui lòng đăng nhập lại.");
+                        location.reload();
+                    }
+                } else {
+                    alert("Lỗi: " + result.message);
+                }
+            } catch (err) { alert("Lỗi kết nối đến Server Google!"); }
+            finally { btn.innerText = isLoginMode ? "Đăng nhập" : "Đăng ký tài khoản"; btn.disabled = false; }
+        });
+    </script>
+</body>
+</html>
