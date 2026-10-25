@@ -4,64 +4,70 @@
     <meta charset="UTF-8">
     <title>MEC - Quản Lý Sự Kiện</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body { background: #f3f4f6; min-height: 100vh; font-family: sans-serif; }</style>
+    <style>body { background: linear-gradient(135deg, #f3e5f5, #fce4ec); min-height: 100vh; font-family: sans-serif; }</style>
 </head>
 <body>
-    <nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center mb-6">
-        <div class="font-extrabold text-2xl text-[#b5179e]">MEC Hub</div>
-        <div class="flex gap-8 font-semibold text-gray-500">
-            <a href="dashboard.html" class="hover:text-[#b5179e]">📊 Tổng quan</a>
-            <a href="events.html" class="text-[#b5179e] border-b-2 border-[#b5179e] pb-1">📅 Quản lý Sự kiện</a>
-            <a href="tasks.html" class="hover:text-[#b5179e]">✅ Công việc</a>
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="font-extrabold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-[#7209b7] to-[#f72585]">MEC Hub</div>
+        <div class="flex gap-8 font-semibold text-purple-900/70">
+            <a href="dashboard.html" class="hover:text-[#b5179e] transition-colors pb-1">📊 Tổng quan</a>
+            <a href="events.html" class="text-[#b5179e] border-b-2 border-[#b5179e] pb-1">📅 Sự kiện</a>
+            <a href="tasks.html" class="hover:text-[#b5179e] transition-colors pb-1">✅ Công việc</a>
+            <a href="calendar.html" class="hover:text-[#b5179e] transition-colors pb-1">📆 Lịch Treo Tường</a>
         </div>
         <button onclick="localStorage.clear(); window.location.href='index.html'" class="text-sm bg-pink-100 text-[#f72585] px-4 py-2 rounded-lg font-bold">Đăng xuất</button>
     </nav>
 
-    <div class="p-4 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="p-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
         
-        <!-- FORM TẠO SỰ KIỆN MỚI -->
-        <div class="bg-white p-6 rounded-xl shadow border-t-4 border-[#b5179e] h-fit">
-            <h3 class="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2">➕ Tạo Sự Kiện Mới</h3>
+        <div class="bg-white p-6 rounded-3xl shadow-xl border-t-4 border-[#7209b7] h-fit">
+            <h3 class="font-extrabold text-xl text-gray-800 mb-6 flex items-center gap-2">➕ Tạo Sự Kiện Mới</h3>
             <form id="createEventForm" class="space-y-4">
                 <div>
                     <label class="text-xs font-bold text-gray-500">TÊN SỰ KIỆN</label>
-                    <input type="text" id="evTitle" class="w-full px-4 py-2 border rounded focus:border-[#b5179e] outline-none mt-1" required>
+                    <input type="text" id="evTitle" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl focus:ring-2 focus:ring-[#b5179e] outline-none mt-1" required>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500">NGÀY TỔ CHỨC</label>
-                    <input type="date" id="evDate" class="w-full px-4 py-2 border rounded mt-1" required>
+                    <input type="date" id="evDate" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" required>
                 </div>
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="text-xs font-bold text-gray-500">BẮT ĐẦU</label>
-                        <input type="time" id="evStart" class="w-full px-4 py-2 border rounded mt-1" value="14:00" required>
+                        <input type="time" id="evStart" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" value="14:00" required>
                     </div>
                     <div class="flex-1">
                         <label class="text-xs font-bold text-gray-500">KẾT THÚC</label>
-                        <input type="time" id="evEnd" class="w-full px-4 py-2 border rounded mt-1" value="17:00" required>
+                        <input type="time" id="evEnd" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" value="17:00" required>
                     </div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500">ĐỊA ĐIỂM</label>
-                    <input type="text" id="evLocation" class="w-full px-4 py-2 border rounded mt-1" required>
+                    <input type="text" id="evLocation" class="w-full px-4 py-3 border border-purple-100 bg-purple-50/50 rounded-xl mt-1" required>
                 </div>
-                <button type="submit" id="btnSubmitEv" class="w-full bg-[#b5179e] text-white font-bold py-3 rounded hover:bg-purple-800 mt-4 transition">
+                <button type="submit" id="btnSubmitEv" class="w-full bg-gradient-to-r from-[#7209b7] to-[#f72585] text-white font-bold py-3 rounded-xl hover:shadow-lg mt-4 transition">
                     Đăng Sự Kiện
                 </button>
             </form>
         </div>
 
-        <!-- DANH SÁCH SỰ KIỆN VÀ PHÂN VAI TRÒ -->
         <div class="col-span-2 space-y-6" id="eventList">
-            <div class="text-center py-10 font-bold text-gray-500">Đang tải dữ liệu sự kiện...</div>
+            <div class="text-center py-10 font-bold text-[#b5179e]">Đang tải dữ liệu sự kiện...</div>
         </div>
     </div>
 
     <script>
-        // DÁN API MỚI VÀO ĐÂY
-        const API_URL = "YOUR_WEB_APP_URL_HERE"; 
-        
-        // 1. Logic tạo sự kiện
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzEpWhttc61bk7JkVa5atNUqpnSgA3fW5D8AdqIMgc_Zu0tzrF3FO-wnEMbKeH-EuHNeg/exec"; 
+        if(!localStorage.getItem('user')) window.location.href = "index.html";
+
+        async function callAPI(payload) {
+            const NoCacheURL = BASE_API_URL + "?nocache=" + new Date().getTime(); 
+            const response = await fetch(NoCacheURL, {
+                method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            });
+            return await response.json();
+        }
+
         document.getElementById('createEventForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmitEv');
@@ -75,23 +81,23 @@
                 startTime: document.getElementById('evStart').value,
                 endTime: document.getElementById('evEnd').value,
                 location: document.getElementById('evLocation').value,
-                hostId: user ? user.id : 'UNKNOWN'
+                hostId: user.id
             };
 
             try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain' }});
-                alert("Tạo sự kiện thành công!");
-                location.reload(); 
-            } catch (err) { alert("Lỗi!"); btn.innerText = "Đăng Sự Kiện"; btn.disabled = false;}
+                const result = await callAPI(payload);
+                if(result.success) {
+                    alert("Tạo sự kiện thành công!");
+                    document.getElementById('createEventForm').reset();
+                    loadEvents();
+                } else alert(result.message);
+            } catch (err) { alert("Lỗi!"); }
+            finally { btn.innerText = "Đăng Sự Kiện"; btn.disabled = false;}
         });
 
-        // 2. Logic Load danh sách sự kiện
         async function loadEvents() {
             try {
-                const res = await fetch(API_URL + "?t=" + new Date().getTime(), { 
-                    method: 'POST', body: JSON.stringify({ action: 'getEvents' }), headers: { 'Content-Type': 'text/plain' }
-                });
-                const result = await res.json();
+                const result = await callAPI({ action: 'getEvents' });
                 const list = document.getElementById('eventList');
                 list.innerHTML = '';
                 
@@ -102,93 +108,72 @@
 
                 result.data.forEach(ev => {
                     let dateStr = new Date(ev.date).toLocaleDateString('vi-VN');
-                    
-                    // Render danh sách những người đã đăng ký (Bảng phân chia công việc)
                     let attendeesHtml = '';
                     if(ev.attendees && ev.attendees.length > 0) {
                         ev.attendees.forEach(att => {
                             let roleColor = att.role === 'Viết tin' ? 'text-green-600' : (att.role === 'Chụp ảnh' ? 'text-blue-600' : 'text-purple-600');
                             attendeesHtml += `
-                                <tr class="border-b bg-gray-50">
+                                <tr class="border-b bg-gray-50 hover:bg-gray-100">
                                     <td class="py-2 px-4 font-bold ${roleColor}">${att.role}</td>
-                                    <td class="py-2 px-4 text-gray-700">${att.name}</td>
-                                    <td class="py-2 px-4 text-sm text-gray-500">${att.date || 'N/A'}</td>
-                                    <td class="py-2 px-4 text-sm font-semibold">${att.status}</td>
-                                </tr>
-                            `;
+                                    <td class="py-2 px-4 text-gray-800 font-semibold">${att.name}</td>
+                                    <td class="py-2 px-4 text-sm text-gray-500">${att.date || ''}</td>
+                                </tr>`;
                         });
-                    } else {
-                        attendeesHtml = `<tr><td colspan="4" class="py-4 text-center text-sm text-gray-400">Chưa có ai đăng ký công việc.</td></tr>`;
-                    }
+                    } else attendeesHtml = `<tr><td colspan="3" class="py-4 text-center text-sm text-gray-400">Chưa có ai nhận việc.</td></tr>`;
 
                     list.innerHTML += `
-                        <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden mb-6">
-                            <!-- Phần Header thông tin sự kiện -->
+                        <div class="bg-white rounded-3xl shadow border border-purple-50 overflow-hidden mb-6">
                             <div class="p-6 bg-slate-50 border-b flex justify-between items-start">
                                 <div>
-                                    <h4 class="text-xl font-bold text-slate-800">📅 ${ev.title}</h4>
-                                    <p class="text-gray-600 text-sm mt-2">🗺️ Địa điểm: ${ev.location}</p>
-                                    <span class="inline-block mt-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">Sự kiện</span>
+                                    <h4 class="text-2xl font-bold text-slate-800">📅 ${ev.title}</h4>
+                                    <p class="text-gray-600 text-sm mt-2">🗺️ ${ev.location}</p>
+                                    <span class="inline-block mt-2 bg-[#f72585] text-white text-xs font-bold px-2 py-1 rounded">Sự kiện chính</span>
                                 </div>
-                                <div class="text-right text-sm font-semibold text-gray-700 bg-gray-200 p-2 rounded">
-                                    <p>Bắt đầu: ${ev.startTime}, ${dateStr}</p>
-                                    <p>Kết thúc: ${ev.endTime}, ${dateStr}</p>
+                                <div class="text-right text-sm font-semibold text-gray-700 bg-white shadow-sm p-3 rounded-lg border border-gray-100">
+                                    <p class="text-green-600">Bắt đầu: ${ev.startTime}</p>
+                                    <p class="text-red-500 mt-1">Kết thúc: ${ev.endTime}</p>
+                                    <p class="text-gray-400 text-xs mt-1">Ngày: ${dateStr}</p>
                                 </div>
                             </div>
                             
-                            <!-- Bảng phân công -->
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-100 text-gray-500">
-                                        <tr>
-                                            <th class="py-3 px-4 font-bold">VỊ TRÍ SỰ KIỆN CON</th>
-                                            <th class="py-3 px-4 font-bold">NGƯỜI ĐĂNG KÝ</th>
-                                            <th class="py-3 px-4 font-bold">NGÀY TẠO</th>
-                                            <th class="py-3 px-4 font-bold">TÌNH TRẠNG</th>
-                                        </tr>
+                                    <thead class="bg-slate-100 text-gray-500 border-b">
+                                        <tr><th class="py-3 px-4 font-bold">VỊ TRÍ</th><th class="py-3 px-4 font-bold">NGƯỜI NHẬN</th><th class="py-3 px-4 font-bold">NGÀY ĐĂNG KÝ</th></tr>
                                     </thead>
-                                    <tbody>
-                                        ${attendeesHtml}
-                                    </tbody>
+                                    <tbody>${attendeesHtml}</tbody>
                                 </table>
                             </div>
 
-                            <!-- Đăng ký Vai trò (Form RSVP) -->
-                            <div class="p-4 bg-gray-50 flex gap-4 items-center">
-                                <select id="role-${ev.id}" class="border rounded px-4 py-2 outline-none">
-                                    <option value="Viết tin">Viết tin</option>
-                                    <option value="Chụp ảnh">Chụp ảnh</option>
-                                    <option value="Hậu cần">Hậu cần</option>
-                                    <option value="MC">MC</option>
+                            <div class="p-4 bg-gray-50 flex gap-4 items-center border-t">
+                                <span class="font-bold text-gray-600 text-sm">Nhận nhiệm vụ:</span>
+                                <select id="role-${ev.id}" class="border border-purple-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-[#b5179e] font-semibold text-purple-700">
+                                    <option value="Chụp ảnh">📸 Chụp ảnh</option>
+                                    <option value="Viết tin">✍️ Viết tin</option>
+                                    <option value="Hậu cần">📦 Hậu cần</option>
+                                    <option value="MC">🎤 MC</option>
+                                    <option value="Quay phim">🎥 Quay phim</option>
                                 </select>
-                                <button onclick="rsvp('${ev.id}')" class="bg-blue-600 text-white font-bold px-6 py-2 rounded hover:bg-blue-700 transition">Đăng ký nhiệm vụ</button>
+                                <button onclick="rsvp('${ev.id}')" class="bg-gradient-to-r from-[#7209b7] to-[#f72585] text-white font-bold px-6 py-2 rounded-lg hover:shadow-lg transition">Xác nhận Đăng ký</button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             } catch(e) { document.getElementById('eventList').innerHTML = '<div class="text-center text-red-500">Lỗi tải dữ liệu.</div>'; }
         }
 
-        // 3. Logic Đăng ký vị trí (RSVP)
         async function rsvp(eventId) {
             const role = document.getElementById(`role-${eventId}`).value;
             const user = JSON.parse(localStorage.getItem('user'));
-            
-            const payload = {
-                action: 'rsvpEvent',
-                userId: user.id,
-                eventId: eventId,
-                roleInEvent: role
-            };
-
             try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain' }});
-                alert(`Bạn đã đăng ký nhiệm vụ "${role}" thành công!`);
-                loadEvents(); // Tải lại danh sách ngay lập tức
-            } catch (err) { alert("Lỗi khi đăng ký!"); }
+                const result = await callAPI({ action: 'rsvpEvent', userId: user.id, eventId: eventId, roleInEvent: role });
+                if(result.success) {
+                    alert(`Đã nhận việc: [${role}] thành công!`);
+                    loadEvents(); 
+                }
+            } catch (err) { alert("Lỗi khi ghi danh!"); }
         }
 
-        loadEvents();
+        window.onload = loadEvents;
     </script>
 </body>
 </html>
